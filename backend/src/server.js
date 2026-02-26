@@ -1,15 +1,17 @@
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import driverRoutes from "./routes/driverRoutes.js";
+import methodOverride from "method-override";
 
-require("dotenv").config();
-const express = require("express");
-const cors = require('cors');
+dotenv.config();
+
 const app = express();
-const mongoose = require("mongoose");
-const driverRoutes = require("./routes/driverRoutes");
-const methodOverride = require("method-override");
 
 app.use(express.json());
-app.use(cors())
-app.use(methodOverride("_method")); 
+app.use(cors());
+app.use(methodOverride("_method"));
 app.use("/api/driver", driverRoutes);
 
 mongoose

@@ -1,14 +1,10 @@
-
-
-
-const Driver = require("../modal/driverModal");
-
+import Driver from "../modal/driverModal.js";
 
 const createDriver = async (req, res) => {
   try {
     const {
       employeeNumber,
-     status,
+      status,
       firstName,
       surName,
       driverPrivateHireLicense,
@@ -31,86 +27,85 @@ const createDriver = async (req, res) => {
       NationalInsurance
     } = req.body;
 
+    const driverPicturePath = req.files["driverPicture"]?.[0]?.path || null;
+    const privateHireCardPath = req.files["privateHireCard"]?.[0]?.path || null;
+    const dvlaCardPath = req.files["dvlaCard"]?.[0]?.path || null;
+    const carPicturePath = req.files["carPicture"]?.[0]?.path || null;
+    const privateHireCarPaperPath = req.files["privateHireCarPaper"]?.[0]?.path || null;
+    const driverPrivateHirePaperPath = req.files["driverPrivateHirePaper"]?.[0]?.path || null;
+    const insurancePath = req.files["insurance"]?.[0]?.path || null;
+    const motExpiryPath = req.files["motExpiry"]?.[0]?.path || null;
+    const V5Path = req.files["V5"]?.[0]?.path || null;
 
-// ✅ Rename these to avoid conflicts
-const driverPicturePath = req.files["driverPicture"]?.[0]?.path || null;
-const privateHireCardPath = req.files["privateHireCard"]?.[0]?.path || null;
-const dvlaCardPath = req.files["dvlaCard"]?.[0]?.path || null;
-const carPicturePath = req.files["carPicture"]?.[0]?.path || null;
-const privateHireCarPaperPath = req.files["privateHireCarPaper"]?.[0]?.path || null;
-const driverPrivateHirePaperPath = req.files["driverPrivateHirePaper"]?.[0]?.path || null;
-const insurancePath = req.files["insurance"]?.[0]?.path || null;
-const motExpiryPath = req.files["motExpiry"]?.[0]?.path || null;
-const V5Path = req.files["V5"]?.[0]?.path || null;
-if (
-  !employeeNumber ||
-  !status ||
-  !firstName ||
-  !surName ||
-  !driverPrivateHireLicense ||
-  !driverPrivateHireLicenseExpiry ||
-  !privateHireCardNo ||
-  !dateOfBirth ||
-  !carRegistration ||
-  !email ||
-  !address ||
-  !vehicleTypes ||
-  !carMake ||
-  !carModal ||
-  !carColor ||
-  !carPrivateHireLicense ||
-  !carPrivateHireLicenseExpiry ||
-  !carInsuranceExpiry ||
-  !contact ||
-  !driverLicense ||
-  !driverLicenseExpiry ||
-  !NationalInsurance ||
-  !req.files["driverPicture"]?.[0]?.path ||
-  !req.files["privateHireCard"]?.[0]?.path ||
-  !req.files["dvlaCard"]?.[0]?.path ||
-  !req.files["carPicture"]?.[0]?.path ||
-  !req.files["privateHireCarPaper"]?.[0]?.path ||
-  !req.files["driverPrivateHirePaper"]?.[0]?.path ||
-  !req.files["insurance"]?.[0]?.path ||
-  !req.files["motExpiry"]?.[0]?.path ||
-  !req.files["V5"]?.[0]?.path
-) {
-  return res.status(400).json({ error: "All fields are required" });
-}
+    if (
+      !employeeNumber ||
+      !status ||
+      !firstName ||
+      !surName ||
+      !driverPrivateHireLicense ||
+      !driverPrivateHireLicenseExpiry ||
+      !privateHireCardNo ||
+      !dateOfBirth ||
+      !carRegistration ||
+      !email ||
+      !address ||
+      !vehicleTypes ||
+      !carMake ||
+      !carModal ||
+      !carColor ||
+      !carPrivateHireLicense ||
+      !carPrivateHireLicenseExpiry ||
+      !carInsuranceExpiry ||
+      !contact ||
+      !driverLicense ||
+      !driverLicenseExpiry ||
+      !NationalInsurance ||
+      !req.files["driverPicture"]?.[0]?.path ||
+      !req.files["privateHireCard"]?.[0]?.path ||
+      !req.files["dvlaCard"]?.[0]?.path ||
+      !req.files["carPicture"]?.[0]?.path ||
+      !req.files["privateHireCarPaper"]?.[0]?.path ||
+      !req.files["driverPrivateHirePaper"]?.[0]?.path ||
+      !req.files["insurance"]?.[0]?.path ||
+      !req.files["motExpiry"]?.[0]?.path ||
+      !req.files["V5"]?.[0]?.path
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
-const newDriver = new Driver({
-  employeeNumber,
-  status,
-  firstName,
-  surName,
-  driverPrivateHireLicense,
-  driverPrivateHireLicenseExpiry,
-  driverPicture: driverPicturePath,
-  privateHireCardNo,
-  privateHireCard: privateHireCardPath,
-  dvlaCard: dvlaCardPath,
-  NationalInsurance,
-  dateOfBirth,
-  carRegistration,
-  carPicture: carPicturePath,
-  privateHireCarPaper: privateHireCarPaperPath,
-  driverPrivateHirePaper: driverPrivateHirePaperPath,
-  insurance: insurancePath,
-  motExpiry: motExpiryPath,
-  V5: V5Path,
-  email,
-  address,
-  vehicleTypes: vehicleTypes?.split(",") || [],
-  carMake,
-  carModal,
-  carColor,
-  carPrivateHireLicense,
-  carPrivateHireLicenseExpiry,
-  carInsuranceExpiry,
-  contact,
-  driverLicense,
-  driverLicenseExpiry,
-});
+    const newDriver = new Driver({
+      employeeNumber,
+      status,
+      firstName,
+      surName,
+      driverPrivateHireLicense,
+      driverPrivateHireLicenseExpiry,
+      driverPicture: driverPicturePath,
+      privateHireCardNo,
+      privateHireCard: privateHireCardPath,
+      dvlaCard: dvlaCardPath,
+      NationalInsurance,
+      dateOfBirth,
+      carRegistration,
+      carPicture: carPicturePath,
+      privateHireCarPaper: privateHireCarPaperPath,
+      driverPrivateHirePaper: driverPrivateHirePaperPath,
+      insurance: insurancePath,
+      motExpiry: motExpiryPath,
+      V5: V5Path,
+      email,
+      address,
+      vehicleTypes: vehicleTypes?.split(",") || [],
+      carMake,
+      carModal,
+      carColor,
+      carPrivateHireLicense,
+      carPrivateHireLicenseExpiry,
+      carInsuranceExpiry,
+      contact,
+      driverLicense,
+      driverLicenseExpiry,
+    });
 
     await newDriver.save();
 
@@ -148,8 +143,6 @@ const getAllDrivers = async (req, res) => {
   }
 };
 
-
-
 const deleteDriverById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -161,12 +154,10 @@ const deleteDriverById = async (req, res) => {
     }
 
     if (driver.status !== "Delete") {
-      // Soft delete: update status to 'Delete'
       driver.status = "Delete";
       await driver.save();
       return res.status(200).json({ message: "Driver status set to 'Delete'" });
     } else {
-      // Hard delete: remove from DB
       await Driver.findByIdAndDelete(id);
       return res.status(200).json({ message: "Driver permanently deleted" });
     }
@@ -176,7 +167,6 @@ const deleteDriverById = async (req, res) => {
   }
 };
 
-
 const updateDriverById = async (req, res) => {
   try {
     const driverId = req.params.id;
@@ -185,12 +175,10 @@ const updateDriverById = async (req, res) => {
       ...req.body,
     };
 
-    // Optional: Split comma-separated vehicleTypes
     if (updateData.vehicleTypes) {
       updateData.vehicleTypes = updateData.vehicleTypes.split(",");
     }
 
-    // Check and update file fields if new files are uploaded
     if (req.files) {
       if (req.files["driverPicture"]) {
         updateData.driverPicture = req.files["driverPicture"][0].path;
@@ -239,12 +227,10 @@ const updateDriverById = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createDriver,
   getAllDrivers,
   deleteDriverById,
   updateDriverById,
   getDriverById,
-
-
 };
