@@ -107,11 +107,23 @@ export default function AddDriver() {
       }
     });
 
+    const formEntriesForDebug = Array.from(form.entries()).map(([key, value]) => ({
+      key,
+      valueType: value instanceof File ? "file" : "text",
+      fileName: value instanceof File ? value.name : undefined,
+    }));
+
+    console.log("[create-driver][frontend] Submitting form", formEntriesForDebug);
+
     try {
       await createDriver(form);
       toast.success("Driver profile saved successfully!");
     } catch (error) {
-      console.error("Error creating driver:", error);
+      console.error("[create-driver][frontend] Request failed", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
 
       if (error.response && error.response.data && error.response.data.error) {
         toast.error(error.response.data.error);

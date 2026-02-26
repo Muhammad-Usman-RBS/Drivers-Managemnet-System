@@ -1,11 +1,9 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import driverRoutes from "./routes/driverRoutes.js";
 import methodOverride from "method-override";
-
-dotenv.config();
 
 const app = express();
 

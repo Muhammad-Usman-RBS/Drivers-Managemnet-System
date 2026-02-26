@@ -22,7 +22,32 @@ const uploadFields = [
   { name: "V5", maxCount: 1 },
 ];
 
-router.post("/create-driver", upload.fields(uploadFields), createDriver);
+const createDriverUploadMiddleware = (req, res, next) => {
+  upload.fields(uploadFields)(req, res, (error) => {
+    if (error) {
+      console.error("[create-driver][upload] Multer/Cloudinary error", {
+        message: error.message,
+        name: error.name,
+        code: error.code,
+        stack: error.stack,
+      });
+
+      return res.status(500).json({
+        error: "Upload failed",
+        details: error.message,
+      });
+    }
+
+    const uploadedFileKeys = Object.keys(req.files || {});
+    console.log("[create-driver][upload] Upload middleware completed", {
+      uploadedFileKeys,
+      bodyKeys: Object.keys(req.body || {}),
+    });
+    next();
+  });
+};
+
+router.post("/create-driver", createDriverUploadMiddleware, createDriver);
 router.get("/getAll-drivers", getAllDrivers);
 router.get("/getDriverById/:id", getDriverById);
 router.delete("/delete-drivers/:id", deleteDriverById);
