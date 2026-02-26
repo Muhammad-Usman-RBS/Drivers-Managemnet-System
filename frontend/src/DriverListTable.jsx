@@ -16,32 +16,32 @@ export default function DriverListTable() {
   const [activeTab, setActiveTab] = useState("Active");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleDelete = async (id) => {
+  const fetchDrivers = async () => {
     try {
-
-if(drivers.driver === "Delete"){
-  confirm("are you sure you want to delete the driver ")
-}
-
-      await deleteDriver(id);
-      toast.success("Driver deleted successfully");
-      setDrivers((prevDrivers) =>
-        prevDrivers.filter((driver) => driver._id !== id)
-      );
+      const response = await getAllDrivers();
+      setDrivers(response.data);
     } catch (error) {
-      toast.error("Error deleting Driver");
+      console.error("Error fetching driver data:", error);
+    }
+  };
 
-      console.error("Error deleting driver:", error);
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this driver?")) {
+      return;
+    }
+    try {
+      const response = await deleteDriver(id);
+      toast.success(response.data.message || "Action successful");
+      fetchDrivers();
+    } catch (error) {
+      toast.error("Error performing delete action");
+      console.error("Error during deletion:", error);
     }
   };
 
   useEffect(() => {
-    getAllDrivers()
-      .then((response) => {
-        setDrivers(response.data);
-      })
-      .catch((error) => console.error("Error fetching driver data:", error));
-  }, [handleDelete]);
+    fetchDrivers();
+  }, []);
 
   const filteredDrivers = drivers.filter((driver) => {
     if (driver.status !== activeTab && activeTab !== "All") return false;
@@ -109,11 +109,10 @@ if(drivers.driver === "Delete"){
           <button
             key={status}
             className={`px-4 py-2 font-medium text-sm transition-colors duration-200
-            ${
-              activeTab === status
+            ${activeTab === status
                 ? "text-blue-600 border-b-2 border-blue-600 -mb-px"
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-t-lg"
-            }`}
+              }`}
             onClick={() => handleTabClick(status)}
           >
             {status}
@@ -147,7 +146,7 @@ if(drivers.driver === "Delete"){
                 No.
               </th>
               <th className="py-3 px-4 text-left font-semibold text-gray-600 border-b">
-                Empployee No.
+                Employee No.
               </th>
               <th className="py-3 px-4 text-left font-semibold text-gray-600 border-b">
                 First Name
@@ -173,7 +172,7 @@ if(drivers.driver === "Delete"){
             {filteredDrivers.map((driver, index) => (
               <tr
                 key={driver._id}
-                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50/50 transition-colors duration-200`}
               >
                 <td className="p-2">
                   <input
@@ -202,7 +201,7 @@ if(drivers.driver === "Delete"){
                 </td>
 
                 <td className="py-3 px-4 border-b border-gray-200">
-                  <span className={getStatusColorClass(driver.status)}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(driver.status)}`}>
                     {driver.status}
                   </span>
                 </td>
@@ -252,9 +251,9 @@ if(drivers.driver === "Delete"){
       {/* Add New Button */}
       <div className="mt-6 flex justify-between items-center">
         <Link to="/AddDriver">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition-colors">
-            <Plus size={18} className="mr-1" />
-            Add New
+          <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg flex items-center transition-all shadow-md hover:shadow-lg active:scale-95">
+            <Plus size={18} className="mr-2" />
+            Add New Driver
           </button>
         </Link>
       </div>
@@ -262,17 +261,17 @@ if(drivers.driver === "Delete"){
   );
 }
 
-function getStatusColorClass(status) {
+function getStatusBadgeClass(status) {
   switch (status) {
     case "Active":
-      return "text-green-800";
+      return "bg-green-100 text-green-800";
     case "Delete":
-      return "text-red-800";
+      return "bg-red-100 text-red-800";
     case "Suspended":
-      return "text-yellow-800";
+      return "bg-yellow-100 text-yellow-800";
     case "Pending":
-      return "text-blue-800";
+      return "bg-blue-100 text-blue-800";
     default:
-      return "text-gray-800";
+      return "bg-gray-100 text-gray-800";
   }
 }

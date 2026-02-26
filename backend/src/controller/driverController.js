@@ -1,4 +1,27 @@
 import Driver from "../modal/driverModal.js";
+import cloudinary from "../config/cloudinary.js";
+
+const getPublicId = (url) => {
+  if (!url || typeof url !== "string") return null;
+
+  try {
+    const decodedUrl = decodeURIComponent(url);
+    const parts = decodedUrl.split("/");
+    const uploadIndex = parts.indexOf("upload");
+    if (uploadIndex === -1) return null;
+
+    // The public_id starts after the 'upload/' segment and optional versioning 'v12345678/'
+    const afterUpload = parts.slice(uploadIndex + 1);
+
+    // Filter out the version part specifically if it exists (e.g., v12345678)
+    const cleanParts = afterUpload.filter(part => !part.match(/^v\d+$/));
+
+    return cleanParts.join("/");
+  } catch (err) {
+    console.error("Error decoding URL for public_id:", err);
+    return null;
+  }
+};
 
 const getUploadedFileLocation = (files, fieldName) => {
   const uploadedFile = files?.[fieldName]?.[0];
@@ -207,8 +230,56 @@ const deleteDriverById = async (req, res) => {
       await driver.save();
       return res.status(200).json({ message: "Driver status set to 'Delete'" });
     } else {
+      // Collect all file fields that might contain Cloudinary URLs
+      const fileFields = [
+        "driverPicture",
+        "privateHireCard",
+        "dvlaCard",
+        "carPicture",
+        "privateHireCarPaper",
+        "driverPrivateHirePaper",
+        "insurance",
+        "motExpiry",
+        "V5",
+      ];
+
+      const filePaths = fileFields
+        .map((field) => driver[field])
+        .filter((path) => path && typeof path === "string");
+
+      if (filePaths.length > 0) {
+        console.log(`[delete-driver] Attempting to delete ${filePaths.length} files from Cloudinary`);
+
+        for (const path of filePaths) {
+          const publicIdWithExt = getPublicId(path);
+          if (!publicIdWithExt) continue;
+
+          // For 'image' resource_type, Cloudinary expects public_id WITHOUT extension.
+          // We strip all extensions just in case there are multiple (e.g. .pdf.pdf)
+          let publicIdNoExt = publicIdWithExt;
+          while (publicIdNoExt.includes(".")) {
+            publicIdNoExt = publicIdNoExt.substring(0, publicIdNoExt.lastIndexOf("."));
+          }
+
+          try {
+            // 1. Try as 'image' (most common for both images and formatted PDFs)
+            const imgRes = await cloudinary.uploader.destroy(publicIdNoExt, { resource_type: "image" });
+            console.log(`[delete-driver] Delete image attempt (${publicIdNoExt}):`, imgRes.result);
+
+            // 2. If it failed or if it's a raw file, try as 'raw' (requires extension)
+            // We use the original extension from the URL
+            if (imgRes.result !== "ok") {
+              const rawRes = await cloudinary.uploader.destroy(publicIdWithExt, { resource_type: "raw" });
+              console.log(`[delete-driver] Delete raw attempt (${publicIdWithExt}):`, rawRes.result);
+            }
+          } catch (error) {
+            console.error(`[delete-driver] Error deleting asset (${path}):`, error.message);
+          }
+        }
+      }
+
       await Driver.findByIdAndDelete(id);
-      return res.status(200).json({ message: "Driver permanently deleted" });
+      return res.status(200).json({ message: "Driver and associated files permanently deleted" });
     }
   } catch (err) {
     console.error("Error deleting driver:", err);
